@@ -63,10 +63,14 @@ import { MailerModule } from '@nestjs-modules/mailer';
       useFactory: (config: ConfigService) => {
         return {
           type: 'postgres',
+          host: process.env.PROJECT_DB_HOST || 'localhost',
+          port: Number(process.env.PROJECT_DB_PORT) || 5432,
           database: config.get('PROJECT_DB_NAME'),
           username: process.env.PROJECT_DB_USER,
           password: process.env.PROJECT_DB_PASSWORD,
-          port: 5432,
+          ssl: {
+            rejectUnauthorized: false,
+          },
           entities: [
             User,
             UserDevice,
