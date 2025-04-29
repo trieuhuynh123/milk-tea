@@ -28,7 +28,7 @@ const StoreList: React.FC<IStoreListProps> = ({ onSelectedStore }) => {
           onClick={() => {
             dispatchSetCurrentStore(store);
             onSelectedStore(store);
-            router.refresh();
+            window.location.reload();
           }}
           key={store.id}
           className="flex cursor-pointer flex-col gap-y-2 rounded-lg border border-secondary-600 p-4 hover:shadow-md"
