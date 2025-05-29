@@ -36,8 +36,6 @@ export class CreateProductDto {
   price: ProductPriceDto;
 
   @IsOptional()
-  @ValidateNested()
-  @Type(() => Object)
   properties: { [key: string]: string | number | boolean };
 
   @IsOptional()

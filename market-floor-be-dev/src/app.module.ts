@@ -68,9 +68,9 @@ import { MailerModule } from '@nestjs-modules/mailer';
           database: config.get('PROJECT_DB_NAME'),
           username: process.env.PROJECT_DB_USER,
           password: process.env.PROJECT_DB_PASSWORD,
-          ssl: {
-            rejectUnauthorized: false,
-          },
+          // ssl: {
+          //   rejectUnauthorized: false,
+          // },
           entities: [
             User,
             UserDevice,
