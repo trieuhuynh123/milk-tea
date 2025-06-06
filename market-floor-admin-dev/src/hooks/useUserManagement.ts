@@ -22,7 +22,7 @@ const useUserManagement = () => {
                     Authorization: `Bearer ${accessToken}`,
                 } as any,
             });
-            if (response?.data?.success == true) {
+            if (response?.data?.success === true) {
                 setUsers(response?.data?.data);
                 setTotalPage(response?.data?._totalPage);
             }

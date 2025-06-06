@@ -5,8 +5,6 @@ import { TenantService } from './tenant.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Tenant } from 'src/entities/tenant.entity';
-import { TenantRepo } from './tenant.repo';
 
 @Module({
   controllers: [TenantController],
@@ -21,8 +19,7 @@ import { TenantRepo } from './tenant.repo';
         };
       },
     }),
-    TypeOrmModule.forFeature([Tenant]),
   ],
-  providers: [TenantService, TenantRepo],
+  providers: [TenantService],
 })
 export class TenantModule {}

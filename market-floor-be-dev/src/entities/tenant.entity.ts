@@ -5,7 +5,7 @@ export interface ITenantSettings {
 }
 
 @Entity()
-export class Tenant {
+export class enant {
   @PrimaryGeneratedColumn()
   id: number;
 

@@ -22,7 +22,6 @@ import { CartModule } from './cart/cart.module';
 
 import { NotificationModule } from './notification/notification.module';
 import { OtpCode } from './entities/otp-code.dto';
-import { Tenant } from './entities/tenant.entity';
 import { TenantModule } from './tenant/tenant.module';
 import { Store } from './entities/store.entity';
 import { StoreProduct } from './entities/store-product.entity';
@@ -79,7 +78,6 @@ import { MailerModule } from '@nestjs-modules/mailer';
             Category,
             Bid,
             OtpCode,
-            Tenant,
             Store,
             StoreProduct,
             Cart,

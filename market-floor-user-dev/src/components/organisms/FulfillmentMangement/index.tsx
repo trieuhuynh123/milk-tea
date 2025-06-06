@@ -65,7 +65,7 @@ const FulfillmentMangement: React.FC<IFulfillmentMangementProps> = (props) => {
       console.error("Geolocation is not supported by this browser.");
     }
   };
-
+  if (!currentStore?.name) return null;
   return (
     <>
       <button
@@ -78,7 +78,7 @@ const FulfillmentMangement: React.FC<IFulfillmentMangementProps> = (props) => {
             Bạn đang chọn
           </p>
           <p className="font-regular hidden max-w-[100px] truncate text-secondary-500 desktop:flex">
-            {currentStore.name ?? `Cửa hàng: ${currentStore?.name}`}
+            {currentStore.name}
           </p>
         </div>
       </button>

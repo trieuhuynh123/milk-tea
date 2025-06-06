@@ -44,19 +44,19 @@ const LoginPage: React.FC<ILoginPageProps> = (props) => {
         router.push(
           `/verify-account?phoneNumber=${(
             values.phoneNumber as string
-          ).substring(1)}`
+          ).substring(1)}`,
         );
       }
       toast.sendToast(
         "Error",
         error?.response?.data?.message || "Login error",
-        "error"
+        "error",
       );
     }
   };
 
   return (
-    <div className="w-full h-auto flex justify-center items-center bg-white">
+    <div className="flex h-auto w-full items-center justify-center bg-white">
       <Box
         sx={{
           display: "flex",
@@ -101,7 +101,7 @@ const LoginPage: React.FC<ILoginPageProps> = (props) => {
 
         <form
           onSubmit={handleSubmit(handlePressLogin)}
-          className="w-full flex gap-y-6 flex-col"
+          className="flex w-full flex-col gap-y-6"
         >
           <Input
             name="phoneNumber"

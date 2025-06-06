@@ -1,23 +1,16 @@
 import {
   BadRequestException,
-  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  CreateTenantConfigDto,
-  ICreateUserPayload,
-  UpdateTenantConfigDto,
-} from './dtos';
+import { ICreateUserPayload } from './dtos';
 import { UsersService } from 'src/auth/users.service';
 import { randomBytes, scrypt as _script } from 'crypto';
 import { promisify } from 'util';
 import { JwtService } from '@nestjs/jwt';
 import { ISignInStaffPayload } from './dtos';
 import { User, UserRole } from '../entities/user.entity';
-import { TenantRepo } from './tenant.repo';
-import { Tenant } from 'src/entities/tenant.entity';
 
 const scrypt = promisify(_script);
 
@@ -26,7 +19,6 @@ export class TenantService {
   constructor(
     private readonly userUservice: UsersService,
     private readonly jwtService: JwtService,
-    private readonly tenantRepo: TenantRepo,
   ) {}
 
   async createUser(payload: ICreateUserPayload) {
@@ -148,31 +140,5 @@ export class TenantService {
     }
 
     return this.userUservice.lock(id);
-  }
-
-  async createTenant(createTenantDto: CreateTenantConfigDto): Promise<Tenant> {
-    const existingTenant = await this.tenantRepo.findAll();
-    if (existingTenant?.length > 0) {
-      throw new ConflictException(
-        'A tenant config already exists, please try update',
-      );
-    }
-
-    return this.tenantRepo.create(createTenantDto);
-  }
-
-  async updateTenant(updateTenantDto: UpdateTenantConfigDto): Promise<Tenant> {
-    const tenant = await this.tenantRepo.update(updateTenantDto);
-    return tenant;
-  }
-
-  async getTenant(): Promise<Tenant> {
-    const listTenant = await this.tenantRepo.findAll();
-
-    if (!listTenant) {
-      throw new NotFoundException('Tenant not found');
-    }
-
-    return listTenant[0];
   }
 }
