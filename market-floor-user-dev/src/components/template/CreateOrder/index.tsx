@@ -26,11 +26,11 @@ const CreateOrder: React.FC<ICreateOrderProps> = (props) => {
   const [isApplyUserSavePoints, setIsApplyUserSavePoints] =
     useState<boolean>(false);
   const { createOrder, actionLoading } = useOrder();
-  const { user, accessToken } = useAuth() || {}
+  const { user, accessToken } = useAuth() || {};
   const router = useRouter();
   const toast = useToast();
-  const {currentStore} = useStore()
-  const {getUserCart} = useCart()
+  const { currentStore } = useStore();
+  const { getUserCart } = useCart();
 
   const [orderUserInfo, setOrderUserInfo] =
     useState<ICreateOrderUserInfo | null>(null);
@@ -44,20 +44,19 @@ const CreateOrder: React.FC<ICreateOrderProps> = (props) => {
       const response = await axios.put(
         `${apiURL}/auth/profile`,
         {
-          savePoints: user?.savePoints - user?.savePoints * 70 / 100,
+          savePoints: user?.savePoints - (user?.savePoints * 70) / 100,
         },
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
-  
+
       if (response?.data?.success) {
-        dispatch(setUser(response?.data?.data))
+        dispatch(setUser(response?.data?.data));
       }
     } catch (error) {
-
       console.error("Get order detail error", error);
     } finally {
     }
@@ -65,16 +64,16 @@ const CreateOrder: React.FC<ICreateOrderProps> = (props) => {
 
   const handleClickCreateOrder = async (data: ICreateOrder) => {
     await createOrder(data, async () => {
-
-      await getUserCart()
-      router.push("/orders")
-      if (isApplyUserSavePoints){
-        await updateUserSavePoints(Number(user?.savePoints - user?.savePoints * 70 / 100))
-       } else {
-        await updateUserSavePoints(Number(user?.savePoints + 1))
-       }
+      await getUserCart();
+      router.push("/orders");
+      if (isApplyUserSavePoints) {
+        await updateUserSavePoints(
+          Number(user?.savePoints - (user?.savePoints * 70) / 100),
+        );
+      } else {
+        await updateUserSavePoints(Number(user?.savePoints + 1));
+      }
     });
-
   };
 
   return (
@@ -161,16 +160,22 @@ const CreateOrder: React.FC<ICreateOrderProps> = (props) => {
             shippingFee={orderAddress?.shippingFee}
           />
 
-          {user?.savePoints && <button className="ml-[-4px] flex items-center text-left text-secondary-900">
-            <Radio
-              // onBlur={() => setIsApplyUserSavePoints(false)}
-              checked={isApplyUserSavePoints}
-              onChange={() => setIsApplyUserSavePoints(!isApplyUserSavePoints)}
-            />
-            Sử dụng điểm tích lũy: {(user?.savePoints * 70/100)?.toFixed(0) || 0} tương ứng {Number(user?.savePoints * 70/100 * 1000)?.toString().prettyMoney()} 
-          </button>}
-
-     
+          {/* {user?.savePoints && (
+            <button className="ml-[-4px] flex items-center text-left text-secondary-900">
+              <Radio
+                // onBlur={() => setIsApplyUserSavePoints(false)}
+                checked={isApplyUserSavePoints}
+                onChange={() =>
+                  setIsApplyUserSavePoints(!isApplyUserSavePoints)
+                }
+              />
+              Sử dụng điểm tích lũy:
+              {((user?.savePoints * 70) / 100)?.toFixed(0) || 0} tương ứng
+              {Number(((user?.savePoints * 70) / 100) * 1000)
+                ?.toString()
+                .prettyMoney()}
+            </button>
+          )} */}
 
           <Button
             isLoading={actionLoading}

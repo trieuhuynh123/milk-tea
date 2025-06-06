@@ -50,8 +50,6 @@ const OrderForm: React.FC<IOrderForm> = (props) => {
     received: 'Chuyển sang xử lý',
     processing: 'Chuyển sang giao hàng',
     shipping: 'Chuyển sang đã giao hàng',
-    delivered: 'Chuyển sang hoàn thành',
-    completed: 'Hoàn thành',
   };
 
   const handleSubmit = async (values: IFormValue) => {
@@ -182,7 +180,7 @@ const OrderForm: React.FC<IOrderForm> = (props) => {
                       <div className="flex gap-x-2">
                         <p>{item?.quantity}</p>
                         <strong className="font-semibold text-green-600">
-                          ({(Number(item?.price) * 1000).toString().prettyMoney()})
+                          ({Number(item?.price).toString().prettyMoney()})
                         </strong>
                       </div>
                     </div>

@@ -6,7 +6,6 @@ import { useAppSelector } from '../../hooks/useRedux';
 import { IRootState } from '../../redux';
 import { setAccessToken, setUser } from '../../redux/slices/auth';
 import LogoutConfirmDialog from '../LogoutConfirmDialog';
-
 interface IHeaderProps {
   title: string;
 }
@@ -15,12 +14,14 @@ const Header: React.FC<IHeaderProps> = (props) => {
   const { user } = useAppSelector((state: IRootState) => state.auth);
   const dispatch = useDispatch();
   const [open, setOpen] = useState<boolean>(false);
+
   const logOut = () => {
     try {
       localStorage.removeItem('admin');
       localStorage.removeItem('token');
       dispatch(setAccessToken(''));
       dispatch(setUser(null));
+
       toast.success('Đăng xuất thành công', {
         position: 'top-right',
         hideProgressBar: true,

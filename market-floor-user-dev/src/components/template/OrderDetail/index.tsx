@@ -6,6 +6,7 @@ import AddressDialog from "@/components/molecules/AddressDialog";
 import CartSummary from "@/components/organisms/CartSummary";
 import useOrder from "@/hooks/useOrder";
 import Button from "@/components/atom/Button";
+import Image from "next/image";
 
 interface IOrderDetailTemplateProps {
   orderId: number;
@@ -17,7 +18,6 @@ const OrderDetailTemplate: React.FC<IOrderDetailTemplateProps> = (props) => {
   useEffect(() => {
     getOrderById(props.orderId);
   }, []);
-
   const renderOrderStatus = () => {
     switch (currentOrder?.status) {
       case "pending":
@@ -53,7 +53,7 @@ const OrderDetailTemplate: React.FC<IOrderDetailTemplateProps> = (props) => {
         return <span className="text-2xl font-bold text-red-600">Đã hủy</span>;
     }
   };
-
+  console.log(currentOrder?.orderDetails);
   return (
     <div className="px-10">
       <div className="mb-8 flex items-center gap-x-2">
@@ -106,10 +106,32 @@ const OrderDetailTemplate: React.FC<IOrderDetailTemplateProps> = (props) => {
               <p className="text-secondary-900">Thanh toán khi nhận hàng</p>
             </div>
           </div>
+          <div className="grid gap-4">
+            {currentOrder?.orderDetails.map((item: any) => (
+              <div
+                key={item.id}
+                className="flex items-center gap-4 rounded-xl border p-4 shadow-sm"
+              >
+                <Image
+                  src={item.product.thumbnail}
+                  alt={item.product.name}
+                  width={80}
+                  height={80}
+                  className="rounded-lg object-cover"
+                />
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold">{item.product.name}</h3>
+                  <p>Số lượng: {item.quantity}</p>
+                  <p>Giá: {item.price.toString().prettyMoney()} đ</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="w-[100%] cursor-pointer flex-col gap-y-4 rounded-lg border border-secondary-600 px-8 py-4 laptop:flex laptop:w-[30%]">
+
+        {/* <div className="w-[100%] cursor-pointer flex-col gap-y-4 rounded-lg border border-secondary-600 px-8 py-4 laptop:flex laptop:w-[30%]">
           <CartSummary />
-        </div>
+        </div> */}
       </div>
     </div>
   );

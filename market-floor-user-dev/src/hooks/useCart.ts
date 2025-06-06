@@ -14,7 +14,7 @@ const useCart = (currentProduct?: IProduct) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [currentQuantity, setCurrentQuantity] = useState<number>(0);
   const toast = useToast();
-
+  console.log(currentCart);
   const dispatch = useDispatch();
 
   const getUserCart = async () => {
@@ -46,13 +46,13 @@ const useCart = (currentProduct?: IProduct) => {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
       if (response?.data?.success) {
         toast.sendToast(
           "Thành công",
           "Thêm sản phẩm vào giỏ hàng thành công",
-          "success"
+          "success",
         );
         getUserCart();
         dispatch(setCurrentCart(response?.data?.data?.cart));
@@ -74,7 +74,7 @@ const useCart = (currentProduct?: IProduct) => {
             `${apiURL}/cart/change-quantity`,
             {
               cartDetailId: currentCart?.cartDetails?.find(
-                (item: any) => item.product?.id == currentProduct?.id
+                (item: any) => item.product?.id == currentProduct?.id,
               )?.id,
               quantity: newQuantity,
             },
@@ -82,16 +82,27 @@ const useCart = (currentProduct?: IProduct) => {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
               },
-            }
+            },
           )
           .then((response) => {
             if (response?.data?.success) {
               toast.sendToast(
                 "Thành công",
                 "Tăng số lượng thành công",
-                "success"
+                "success",
               );
-              getUserCart();
+              const updatedCart = {
+                ...currentCart,
+                cartDetails: currentCart.cartDetails.map((item: any) =>
+                  item.product?.id == currentProduct?.id
+                    ? {
+                        ...item,
+                        quantity: newQuantity,
+                      }
+                    : item,
+                ),
+              };
+              dispatch(setCurrentCart(updatedCart));
             }
           })
           .catch((error) => {
@@ -119,7 +130,7 @@ const useCart = (currentProduct?: IProduct) => {
             `${apiURL}/cart/change-quantity`,
             {
               cartDetailId: currentCart?.cartDetails?.find(
-                (item: any) => item.product?.id == currentProduct?.id
+                (item: any) => item.product?.id == currentProduct?.id,
               )?.id,
               quantity: newQuantity,
             },
@@ -127,16 +138,27 @@ const useCart = (currentProduct?: IProduct) => {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
               },
-            }
+            },
           )
           .then((response) => {
             if (response?.data?.success) {
               toast.sendToast(
                 "Thành công",
                 "Giảm số lượng thành công",
-                "success"
+                "success",
               );
-              getUserCart();
+              const updatedCart = {
+                ...currentCart,
+                cartDetails: currentCart.cartDetails.map((item: any) =>
+                  item.product?.id == currentProduct?.id
+                    ? {
+                        ...item,
+                        quantity: newQuantity,
+                      }
+                    : item,
+                ),
+              };
+              dispatch(setCurrentCart(updatedCart));
             }
           })
           .catch((error) => {
@@ -157,7 +179,7 @@ const useCart = (currentProduct?: IProduct) => {
   const handleRemoveProduct = async () => {
     try {
       let currentCartDetailId = currentCart?.cartDetails?.find(
-        (item: any) => item.product?.id == currentProduct?.id
+        (item: any) => item.product?.id == currentProduct?.id,
       )?.id;
       setLoading(true);
       axios
@@ -171,7 +193,7 @@ const useCart = (currentProduct?: IProduct) => {
             toast.sendToast(
               "Thành công",
               "Xóa sản phẩm khỏi giỏ hàng thành công",
-              "success"
+              "success",
             );
             getUserCart();
           }
@@ -191,7 +213,7 @@ const useCart = (currentProduct?: IProduct) => {
   useEffect(() => {
     if (currentCart && currentProduct) {
       const findedQuantity = currentCart?.cartDetails?.find(
-        (item: any) => item.product?.id == currentProduct?.id
+        (item: any) => item.product?.id == currentProduct?.id,
       )?.quantity;
       setCurrentQuantity(findedQuantity || 0);
     }

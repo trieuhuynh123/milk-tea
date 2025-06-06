@@ -91,8 +91,8 @@ export class OrderService {
   ): Promise<number> {
     let totalAmount = 0;
 
-    for (const cartDetail of cartDetails) {
-      try {
+    try {
+      for (const cartDetail of cartDetails) {
         const orderDetail = new OrderDetail();
         orderDetail.product = cartDetail.product;
         orderDetail.quantity = cartDetail.quantity;
@@ -103,19 +103,18 @@ export class OrderService {
         totalAmount += Number(orderDetail.quantity) * Number(orderDetail.price);
 
         order.orderDetails.push(orderDetail);
-        if (order?.orderAddress?.shippingFee > 0) {
-          totalAmount =
-            Number(totalAmount) + Number(order.orderAddress.shippingFee);
-        }
-
-        if (order?.isApplyUserSavePoints) {
-          totalAmount = totalAmount - order.user.savePoints * 1000;
-        }
-        return totalAmount;
-      } catch (error) {
-        console.error('Error creating order detail:', error);
-        throw new InternalServerErrorException('Failed to create order detail');
+        // if (order?.isApplyUserSavePoints) {
+        //   totalAmount = totalAmount - order.user.savePoints * 1000;
+        // }
       }
+      if (order?.orderAddress?.shippingFee > 0) {
+        totalAmount =
+          Number(totalAmount) + Number(order.orderAddress.shippingFee);
+      }
+      return totalAmount;
+    } catch (error) {
+      console.error('Error creating order detail:', error);
+      throw new InternalServerErrorException('Failed to create order detail');
     }
   }
 

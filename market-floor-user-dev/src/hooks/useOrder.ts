@@ -51,6 +51,7 @@ const useOrder = () => {
       });
       if (response?.data?.success) {
         toast.sendToast("success", "Xóa đơn hàng thành công");
+        location.reload();
       }
     } catch (error) {
       toast.sendToast("error", "Xóa đơn hàng thất bại, vui lòng thử lại sau");

@@ -10,101 +10,88 @@ interface IOrderItemProps {
 }
 
 const OrderItem: React.FC<IOrderItemProps> = ({ orderItem }) => {
-  const { createdAt, orderDetails, orderAddress, status } = orderItem;
+  const { createdAt, orderDetails, orderAddress, status, totalAmount } =
+    orderItem;
   const { cancelOrder, actionLoading } = useOrder();
 
   const renderOrderStatus = (status: string) => {
     switch (status) {
       case "pending":
         return (
-          <span className="text-yellow-600 font-bold text-sm">
+          <span className="text-sm font-bold text-yellow-600">
             Đang chờ xử lý
           </span>
         );
 
       case "received":
         return (
-          <span className="text-blue-600 font-bold text-sm">Đã nhận đơn</span>
+          <span className="text-sm font-bold text-blue-600">Đã nhận đơn</span>
         );
 
       case "processing":
         return (
-          <span className="text-lime-600 font-bold text-sm">Đang xử lý</span>
+          <span className="text-sm font-bold text-lime-600">Đang xử lý</span>
         );
 
       case "shipping":
         return (
-          <span className="text-blue-600 font-bold text-sm">
+          <span className="text-sm font-bold text-blue-600">
             Đang giao hàng
           </span>
         );
 
       case "delivered":
         return (
-          <span className="text-cyan-600 font-bold text-sm">Đã giao hàng</span>
+          <span className="text-sm font-bold text-cyan-600">Đã giao hàng</span>
         );
 
       case "cancelled":
-        return <span className="text-red-600 font-bold text-sm">Đã hủy</span>;
+        return <span className="text-sm font-bold text-red-600">Đã hủy</span>;
     }
   };
 
-  const totalValue = () => {
-    let total = 0;
-    orderDetails?.forEach((item) => {
-      total += Number(item?.price) * item?.quantity;
-    });
-    return total;
-  };
-
   return (
-    <div className="flex w-full justify-between items-center px-8 py-4 border-secondary-600 rounded-lg border cursor-pointer">
+    <div className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-secondary-600 px-8 py-4">
       <div className="flex flex-col gap-y-4">
-        <p className="text-sm text-secondary-900 font-bold">
+        <p className="text-sm font-bold text-secondary-900">
           Trạng thái đơn hàng: {renderOrderStatus(status)}
         </p>
 
-        <p className="text-sm  text-secondary-900 font-bold">
+        <p className="text-sm font-bold text-secondary-900">
           Đặt hàng vào ngày:{" "}
-          <span className="text-regular text-secondary-800 ">
+          <span className="text-regular text-secondary-800">
             {(orderItem?.createdAt as string)?.prettyDateTime()}
           </span>
         </p>
         <Divider />
 
         {orderAddress && (
-          <p className="text-sm  text-secondary-900 font-bold">
+          <p className="text-sm font-bold text-secondary-900">
             Địa chỉ giao hàng:{" "}
-            <span className="text-regular text-secondary-800 text-sm">
+            <span className="text-regular text-sm text-secondary-800">
               {orderAddress?.address}, {orderAddress?.ward},{" "}
               {orderAddress?.district},{orderAddress?.province}
             </span>
           </p>
         )}
 
-        {/* <p className="text-sm text-secondary-900 font-bold">
-          Tổng số lượng:{" "}
-          <span className="text-regular text-secondary-800 text-sm">
-            {orderDetails?.length} sản phẩm
-          </span>
-        </p> */}
-        <p className="text-sm  text-secondary-900 font-bold">
-          Tổng giá trị:{" "}
-          <span className="text-regular text-green-600 ">
-            {`${totalValue()}000`?.toString().prettyMoney()} VND
+        <p className="text-sm font-bold text-secondary-900">
+          Tổng giá trị:
+          <span className="text-regular text-green-600">
+            {`${totalAmount}`?.toString().prettyMoney()} VND
           </span>
         </p>
       </div>
       {status == "pending" && (
-        <div className="w-full max-w-[30%] flex flex-col gap-y-2 items-center">
+        <div className="flex w-full max-w-[30%] flex-col items-center gap-y-2">
           <button
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              alert("hH");
-              // cancelOrder(orderItem?.id);
+
+              cancelOrder(orderItem?.id);
             }}
-            className="text-red-500 border rounded-full px-4 py-2 hover:opacity-50 bg-white border-red-500"
+            className="rounded-full border border-red-500 bg-white px-4 py-2 text-red-500 hover:opacity-50"
           >
             {actionLoading ? <CircularProgress size={20} /> : "Hủy đơn hàng"}
           </button>

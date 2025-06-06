@@ -29,7 +29,6 @@ export class StoreService {
       // Kiểm tra xem có địa chỉ trong payload không
       if (payload.address) {
         savedAddress = await this.addressService.createAddress(payload.address);
-        console.log('Saved Address:', savedAddress); // Kiểm tra giá trị trả về
       }
 
       // Tạo store mới mà không bao gồm address

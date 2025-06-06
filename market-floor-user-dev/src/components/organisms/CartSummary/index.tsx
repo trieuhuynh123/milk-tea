@@ -14,7 +14,7 @@ interface ICartSummaryProps {
 const CartSummary: React.FC<ICartSummaryProps> = (props) => {
   const { isApplyUserSavePoints = false } = props;
   const { currentCart } = useCart();
-  const { user } = useAuth() || {}
+  const { user } = useAuth() || {};
 
   const totalPrice = () => {
     let total = 0;
@@ -33,7 +33,8 @@ const CartSummary: React.FC<ICartSummaryProps> = (props) => {
 
     if (user?.savePoints > 0) {
       if (isApplyUserSavePoints) {
-        afterTotal = afterTotal - (Number(( user?.savePoints * 70/100)?.toFixed(0)));
+        afterTotal =
+          afterTotal - Number(((user?.savePoints * 70) / 100)?.toFixed(0));
       }
     }
 
@@ -48,14 +49,14 @@ const CartSummary: React.FC<ICartSummaryProps> = (props) => {
 
     if (user?.savePoints > 0) {
       if (isApplyUserSavePoints) {
-        finalPrice = finalPrice - (Number(( user?.savePoints * 70/100)?.toFixed(0)))
+        finalPrice =
+          finalPrice - Number(((user?.savePoints * 70) / 100)?.toFixed(0));
       }
     }
 
     if (props?.shippingFee) {
       finalPrice = finalPrice + props?.shippingFee;
     }
-
 
     return `${finalPrice}`?.prettyMoney();
   };
@@ -77,7 +78,11 @@ const CartSummary: React.FC<ICartSummaryProps> = (props) => {
               Giảm giá ( bằng điểm )
             </p>
             <p className="text-md font-bold text-red-600">
-              -{((user?.savePoints * 70/100 * 1000)?.toFixed(0))?.toString()?.prettyMoney()}
+              -
+              {(((user?.savePoints * 70) / 100) * 1000)
+                ?.toFixed(0)
+                ?.toString()
+                ?.prettyMoney()}
             </p>
           </div>
         )}
@@ -105,8 +110,6 @@ const CartSummary: React.FC<ICartSummaryProps> = (props) => {
         )}
 
         <Divider />
-
-   
 
         <div className="flex w-full items-center justify-between">
           <p className="text-md font-bold text-secondary-900">Tổng ước tính</p>

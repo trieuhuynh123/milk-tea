@@ -28,21 +28,23 @@ const Orders: React.FC<IOrderPageProps> = (props) => {
             <div className="h-[200px] w-full animate-pulse bg-gray-100"></div>
           </>
         ) : (
-          <div className="h-[600px] overflow-auto flex flex-col gap-y-4">
-          {orders?.length > 0 ?  
-             <>
-              {orders?.map((item: any, index: number) => (
-                <Link href={`/orders/${item.id}`} key={index}>
-                  <OrderItem key={index} orderItem={item} />
-                </Link>
-               ))}
-            </> : 
-            <div className="flex flex-col w-screen   h-[700px] items-center justify-center">
-              <InformationCircleIcon className="w-32 h-32 text-secondary-900" />
-              <p className="text-secondary-800 text-2xl mt-4">Không có đơn hàng nào</p>
-            </div>
-          }
-       
+          <div className="flex h-[600px] flex-col gap-y-4 overflow-auto">
+            {orders?.length > 0 ? (
+              <>
+                {orders?.map((item: any, index: number) => (
+                  <Link href={`/orders/${item.id}`} key={index}>
+                    <OrderItem key={index} orderItem={item} />
+                  </Link>
+                ))}
+              </>
+            ) : (
+              <div className="flex h-[700px] w-screen flex-col items-center justify-center">
+                <InformationCircleIcon className="h-32 w-32 text-secondary-900" />
+                <p className="mt-4 text-2xl text-secondary-800">
+                  Không có đơn hàng nào
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -51,7 +53,7 @@ const Orders: React.FC<IOrderPageProps> = (props) => {
       ) : (
         <>
           {orders?.length > 0 && (
-            <div className="w-full h-fit cursor-pointer flex-col gap-y-4 rounded-lg border border-secondary-600 px-8 py-4 tablet:w-[30%] laptop:flex">
+            <div className="h-fit w-full cursor-pointer flex-col gap-y-4 rounded-lg border border-secondary-600 px-8 py-4 tablet:w-[30%] laptop:flex">
               <h1 className="text-2xl font-bold text-secondary-900">
                 Thống kê
               </h1>
@@ -123,7 +125,7 @@ const Orders: React.FC<IOrderPageProps> = (props) => {
                 <p className="font-regular text-gray-600">
                   {
                     orders.filter(
-                      (order: IOrder) => order?.status === "cacelled",
+                      (order: IOrder) => order?.status === "cancelled",
                     )?.length
                   }
                 </p>
