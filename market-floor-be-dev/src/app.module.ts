@@ -15,7 +15,7 @@ import { Address } from './entities/address.entity';
 import { ProductsModule } from './products/products.module';
 import { Product } from './entities/product.entity';
 import { Category } from './entities/category.entity';
-import { Bid } from './entities/bid.entity';
+
 import { Cart } from './entities/cart.entity';
 import { CartDetail } from './entities/cart-detail.entity';
 import { CartModule } from './cart/cart.module';
@@ -76,7 +76,6 @@ import { MailerModule } from '@nestjs-modules/mailer';
             Address,
             Product,
             Category,
-            Bid,
             OtpCode,
             Store,
             StoreProduct,
