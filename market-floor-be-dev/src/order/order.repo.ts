@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Order } from 'src/entities/order.entity';
+import { Between, Repository } from 'typeorm';
+import { Order, OrderStatus } from 'src/entities/order.entity';
 import { OrderDetail } from 'src/entities/order-detail.entity';
 
 @Injectable()
@@ -60,5 +60,39 @@ export class OrderRepo {
   async deleteAll(userId: number): Promise<void> {
     // await this.orderDetailRepo.delete({});
     await this.repo.delete({ user: { id: userId } });
+  }
+
+  async getOrdersBetweenDates(
+    startDate: string,
+    endDate: string,
+  ): Promise<Order[]> {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setDate(end.getDate() + 1); // cộng thêm 1 ngày
+    return this.repo.find({
+      where: {
+        createdAt: Between(start, end),
+        status: OrderStatus.DELIVERED, // chỉ lấy đơn đã giao
+      },
+    });
+  }
+  async getTop5ProductsBetweenDates(startDate: string, endDate: string) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setDate(end.getDate() + 1); // cộng thêm 1 ngày
+    return this.orderDetailRepo
+      .createQueryBuilder('orderDetail')
+      .leftJoin('orderDetail.order', 'order')
+      .leftJoin('orderDetail.product', 'product')
+      .select('product.id', 'productId')
+      .addSelect('product.name', 'productName')
+      .addSelect('SUM(orderDetail.quantity)', 'totalQuantity')
+      .where('order.createdAt BETWEEN :start AND :end', { start, end })
+      .andWhere('order.status = :status', { status: 'delivered' })
+      .groupBy('product.id')
+      .addGroupBy('product.name')
+      .orderBy('SUM(orderDetail.quantity)', 'DESC')
+      .limit(5)
+      .getRawMany();
   }
 }

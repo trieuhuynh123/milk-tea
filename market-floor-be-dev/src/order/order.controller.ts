@@ -7,6 +7,7 @@ import {
   Delete,
   Patch,
   Put,
+  Query,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -25,6 +26,22 @@ export class OrderController {
     @CurrentUser() user: User,
   ) {
     return this.orderService.createOrderFromCart(user, body);
+  }
+
+  @Get('statistics')
+  async getOrderStatistics(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    return this.orderService.getOrderStatistics(startDate, endDate);
+  }
+
+  @Get('statistics/product')
+  async getProductStatistics(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    return this.orderService.getTop5ProductsBetweenDates(startDate, endDate);
   }
 
   @Get('/:orderId')

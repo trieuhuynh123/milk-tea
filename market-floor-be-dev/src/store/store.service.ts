@@ -79,4 +79,13 @@ export class StoreService {
     }
     return this.storeRepo.remove(id);
   }
+  async getBottom5StoresByRevenueBetweenDates(
+    startDate: string,
+    endDate: string,
+  ) {
+    return this.storeRepo.getBottom5StoresByRevenueBetweenDates(
+      startDate,
+      endDate,
+    );
+  }
 }

@@ -1,356 +1,259 @@
 import { useEffect, useState } from 'react';
-import Chart from 'react-apexcharts';
-import { useRerender } from '../../hooks/useRerender';
 import MainLayout from '../../components/MainLayout';
-import useWindowDimensions from '../../hooks/useWindowDimension';
 import axios from 'axios';
 import { apiURL } from '../../config/constanst';
-import { useAppSelector } from '../../hooks/useRedux';
-import { IRootState } from '../../redux';
-import RevenueIcon from '../../assets/images/RevenueIcon.png';
-import GiveMoneyIcon from '../../assets/images/GiveMoneyIcon.png';
-import RevenueOnEveryBid from '../../assets/images/RevenueOnBid.png';
-import CreateFeeRevenue from '../../assets/images/CreateFeeRevenue.png';
-
-interface IStatistic {
-  productStatistics: {
-    productsTotal: number;
-    productsTotalByCategory: {
-      category: string;
-      total: number;
-    };
-  };
-  transactionStatistics: {
-    postSaleFeeStatistics: {
-      average: number;
-      min: number;
-      max: number;
-      total: number;
-    };
-    preSaleFeeStatistics: {
-      total: number;
-    };
-    revenueStatistics: {
-      average: number;
-      min: number;
-      max: number;
-      total: number;
-    };
-  };
-}
+import Chart from 'react-apexcharts';
 
 export default function DashBoard() {
-  const { rerender } = useRerender();
-  const { user, accessToken } = useAppSelector((state: IRootState) => state.auth);
-  const [statisticData, setStatisticData] = useState<IStatistic | null>(null);
-  const [listCategory, setListCategory] = useState<any[]>([]);
-  const { openSideBar: open } = useAppSelector((state: IRootState) => state.auth);
+  const [dailyStats, setDailyStats] = useState<{ date: string; count: number; revenue: number }[]>(
+    [],
+  );
+  const [topProducts, setTopProducts] = useState<
+    { productId: number; productName: string; totalQuantity: number }[]
+  >([]);
+  const [lowRevenueStores, setLowRevenueStores] = useState<
+    { storeId: number; storeName: string; totalRevenue: number }[]
+  >([]);
 
-  const [lineState, setLineState] = useState({
-    options: {
-      chart: {
-        id: 'basic-bar',
-      },
-      xaxis: {
-        categories: [
-          'Tháng 1',
-          'Tháng 2',
-          'Tháng 3',
-          'Tháng 4',
-          'Tháng 5',
-          'Tháng 6',
-          'Tháng 7',
-          'Tháng 9',
-          'Tháng 10',
-          'Tháng 11',
-          'Tháng 12',
-        ],
-      },
-    },
-    series: [
-      {
-        name: 'Số lượng',
-        data: [7, 5, 5, 10, 30, 40, 8, 30, 41, 42, 43],
-      },
-    ],
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 29);
+    return d.toISOString().split('T')[0];
   });
-
-  const [barState, setBarState] = useState({
-    options: {
-      chart: {
-        id: 'basic-line',
-      },
-      xaxis: {
-        categories: [
-          'Puma',
-          'Louis Vuiton',
-          'Balenciaga',
-          'Channel',
-          'Adidas',
-          'Nike',
-          'Saint Laurent',
-          'Dior',
-        ],
-      },
-    },
-    series: [
-      {
-        name: 'Số lượng',
-        data: [7, 5, 5, 10, 30, 40, 8, 5],
-      },
-    ],
+  const [endDate, setEndDate] = useState(() => {
+    const d = new Date();
+    return d.toISOString().split('T')[0];
   });
-
-  const [pieState, setPieState] = useState({
-    series: [44, 55, 13, 43, 22, 20, 30, 11],
-    options: {
-      chart: {
-        width: 380,
-        type: 'pie',
-      },
-      labels: ['Chiếu khấu sản phẩm', 'Phí đăng sản phẩm'],
-      theme: {
-        monochrome: {
-          enabled: true,
-        },
-      },
-      responsive: [
-        {
-          breakpoint: 480,
-          options: {
-            chart: {
-              width: 200,
-            },
-            legend: {
-              position: 'bottom',
-            },
-          },
-        },
-      ],
-    },
-  });
-
-  const dimension = useWindowDimensions();
 
   useEffect(() => {
-    setLineState((prev) => ({
-      ...prev,
-      options: {
-        ...prev.options,
-        chart: {
-          ...prev.options.chart,
-          width: (dimension.width * 80) / 100,
-        },
-      },
-    }));
-
-    // Update dimensions for pie chart
-    setPieState((prev) => ({
-      ...prev,
-      options: {
-        ...prev.options,
-        chart: {
-          ...prev.options.chart,
-          width: (dimension.width * 80) / 100,
-        },
-      },
-    }));
-
-    // Update dimensions for bar chart
-    setBarState((prev) => ({
-      ...prev,
-      options: {
-        ...prev.options,
-        chart: {
-          ...prev.options.chart,
-          width: (dimension.width * 80) / 100,
-        },
-      },
-    }));
-  }, [dimension]);
-
-  const getStatisticData = async () => {
-    try {
-      const res = await axios.get(`${apiURL}/statistics`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      if (res.data.success) {
-        let postSaleFeePortion =
-          res.data.data.transactionStatistics.postSaleFeeStatistics.total /
-          res.data.data.transactionStatistics.revenueStatistics.total;
-        let preSaleFeePortion = 1 - postSaleFeePortion;
-        //set pie state
-        setPieState({
-          series: [
-            79000, 9000,
-            // postSaleFeePortion * 100 || 70,
-            // preSaleFeePortion * 100 || 30,
-          ],
-          options: {
-            chart: {
-              width: 380,
-              type: 'pie',
-            },
-            labels: ['Chiếu khấu sản phẩm', 'Phí đăng sản phẩm'],
-            theme: {
-              monochrome: {
-                enabled: true,
-              },
-            },
-            responsive: [
-              {
-                breakpoint: 480,
-                options: {
-                  chart: {
-                    width: 200,
-                  },
-                  legend: {
-                    position: 'bottom',
-                  },
-                },
-              },
-            ],
-          },
+    async function fetchData() {
+      try {
+        const res = await axios.get(`${apiURL}/orders/statistics`, {
+          params: { startDate, endDate },
         });
 
-        const categories = res.data.data.productStatistics.productsTotalByCategory?.map(
-          (item: any) => item?.category,
-        );
-        const quantityOnCategory = res.data.data.productStatistics.productsTotalByCategory?.map(
-          (item: any) => item?.total,
+        const sorted = [...res.data.data.dailyStats].sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
         );
 
-        setBarState({
-          options: {
-            chart: {
-              id: 'basic-line',
-            },
-            xaxis: {
-              categories: categories,
-            },
-          },
-          series: [
-            {
-              name: 'Số lượng',
-              data: quantityOnCategory,
-            },
-          ],
-        });
-        setStatisticData(res.data.data);
-      } else {
-        console.log(res.data.message);
+        setDailyStats(sorted);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
       }
-    } catch (error) {
-      console.log(error);
     }
-  };
+
+    fetchData();
+  }, [startDate, endDate]);
 
   useEffect(() => {
-    if (!!user) {
-      getStatisticData();
+    async function fetchTopProducts() {
+      try {
+        const res = await axios.get(`${apiURL}/orders/statistics/product`, {
+          params: { startDate, endDate },
+        });
+        setTopProducts(res.data.data);
+      } catch (error) {
+        console.error('Error fetching top products:', error);
+      }
     }
-  }, [user]);
+
+    fetchTopProducts();
+  }, [startDate, endDate]);
+
+  useEffect(() => {
+    async function fetchLowRevenueStores() {
+      try {
+        const res = await axios.get(`${apiURL}/store/statistics`, {
+          params: { startDate, endDate },
+        });
+        setLowRevenueStores(res.data.data);
+      } catch (error) {
+        console.error('Error fetching low revenue stores:', error);
+      }
+    }
+
+    fetchLowRevenueStores();
+  }, [startDate, endDate]);
+
+  const commonOptions = {
+    chart: {
+      id: 'basic-line',
+      zoom: { enabled: false },
+    },
+    xaxis: {
+      categories: dailyStats.map((d) => d.date),
+      title: { text: 'Ngày' },
+    },
+    stroke: {
+      curve: 'smooth' as 'smooth',
+    },
+  };
 
   return (
     <MainLayout
       title="Tổng quan thông tin của sàn"
       content={
-        statisticData ? (
-          <div className="flex flex-col gap-y-10 px-10">
-            <div className="grid w-full grid-cols-2 flex-row items-center gap-x-5">
-              <div className="rounded-xl bg-white px-10 py-5 shadow-lg drop-shadow-md">
-                <p className="text-center text-xl font-bold text-gray-500">
-                  Thống kê doanh thu của sàn
-                </p>
-                <div className="mt-4 flex w-full justify-center">
-                  <div className="grid w-full grid-cols-2 gap-x-10 gap-y-4">
-                    <div className="w-full">
-                      <div className="flex h-[180px] w-full cursor-pointer flex-col justify-between rounded-xl border border-gray-100 p-4 shadow-lg drop-shadow-md hover:opacity-50">
-                        <p className="text-right text-sm font-bold text-gray-500">
-                          Tổng lợi nhuận của sàn
-                        </p>
-                        <div className="my-2 flex flex-col items-center">
-                          <img src={RevenueIcon} className="h-[80px] w-[100px]" />
-                        </div>
-                        <p className="text-md text-right font-bold text-green-600">
-                          {(983)?.toString().prettyMoney()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="w-full">
-                      <div className="flex h-[180px] w-full cursor-pointer flex-col justify-between rounded-xl border border-gray-100 p-4 shadow-lg drop-shadow-md hover:opacity-50">
-                        <p className="text-right text-sm font-bold text-gray-500">
-                          Lợi nhuận trung bình / sản phẩm
-                        </p>
-                        <div className="my-2 flex flex-col items-center">
-                          <img src={RevenueOnEveryBid} className="h-[80px] w-[100px]" />
-                        </div>
-                        <p className="text-md text-right font-bold text-green-600">
-                          {(91)?.toString().prettyMoney()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="w-full">
-                      <div className="flex h-[180px] w-full cursor-pointer flex-col justify-between rounded-xl border border-gray-100 p-4 shadow-lg drop-shadow-md hover:opacity-50">
-                        <p className="text-right text-sm font-bold text-gray-500">
-                          Lợi nhuận chiết khấu
-                        </p>
-                        <div className="my-2 flex flex-col items-center">
-                          <img src={GiveMoneyIcon} className="h-[80px] w-[100px]" />
-                        </div>
-                        <p className="text-md text-right font-bold text-green-600">
-                          {(889)?.toString().prettyMoney()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="w-full">
-                      <div className="flex h-[180px] w-full cursor-pointer flex-col justify-between rounded-xl border border-gray-100 p-4 shadow-lg drop-shadow-md hover:opacity-50">
-                        <p className="text-right text-sm font-bold text-gray-500">
-                          Lợi nhuận từ phí đăng
-                        </p>
-                        <div className="my-2 flex flex-col items-center">
-                          <img src={CreateFeeRevenue} className="h-[80px] w-[100px]" />
-                        </div>
-                        <p className="text-md text-right font-bold text-green-600">
-                          {(94)?.toString().prettyMoney()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="rounded-xl bg-white px-10 py-5 shadow-lg drop-shadow-md">
-                <p className="mb-2 text-center text-xl font-bold text-gray-500">
-                  Biểu đồ tỷ lệ phần trăm doanh thu
-                </p>
-                <Chart
-                  options={pieState.options as any}
-                  series={pieState.series}
-                  type="pie"
-                  height="380"
-                />
-              </div>
+        <div className="container mx-auto space-y-8 p-4">
+          {/* Bộ lọc ngày */}
+          <div className="flex flex-wrap items-center gap-4">
+            <label className="flex flex-col text-sm font-medium text-gray-700">
+              Ngày bắt đầu:
+              <input
+                type="date"
+                value={startDate}
+                max={endDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="mt-1 rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </label>
+            <label className="flex flex-col text-sm font-medium text-gray-700">
+              Ngày kết thúc:
+              <input
+                type="date"
+                value={endDate}
+                min={startDate}
+                max={new Date().toISOString().split('T')[0]}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="mt-1 rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </label>
+          </div>
+
+          {/* Biểu đồ tổng hợp */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {/* Đơn hàng */}
+            <div className="rounded-xl bg-white p-4 shadow-md">
+              <h3 className="mb-4 text-center text-lg font-semibold">Số đơn hàng theo ngày</h3>
+              <Chart
+                options={{
+                  ...commonOptions,
+                  yaxis: {
+                    title: { text: 'Số đơn' },
+                    min: 0,
+                    labels: { formatter: (val: number) => Math.round(val).toString() },
+                  },
+                }}
+                series={[{ name: 'Số đơn', data: dailyStats.map((d) => d.count) }]}
+                type="line"
+                height={300}
+                width="100%"
+              />
             </div>
-            <div className="w-full rounded-xl bg-white px-10 py-5 shadow-lg drop-shadow-md">
-              {/* <p className="text-center text-2xl text-gray-500 font-bold mb-4">
-            Doanh thu của cửa hàng theo tháng (2023)
-          </p>
-          <Chart
-            options={lineState.options}
-            series={lineState.series}
-            type="line"
-            width="99%"
-            height="280"
-          /> */}
-              <p className="text-center text-xl font-bold text-gray-500">
-                Số lượng sản phẩm đang có trên sàn theo từng danh mục
-              </p>
-              <Chart options={barState.options} series={barState.series} type="bar" height="300" />
+
+            {/* Doanh thu */}
+            <div className="rounded-xl bg-white p-4 shadow-md">
+              <h3 className="mb-4 text-center text-lg font-semibold">Doanh thu theo ngày</h3>
+              <Chart
+                options={{
+                  ...commonOptions,
+                  yaxis: {
+                    title: { text: 'Doanh thu (VND)' },
+                    min: 0,
+                    labels: {
+                      formatter: (val: number) =>
+                        val.toLocaleString('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND',
+                          maximumFractionDigits: 0,
+                        }),
+                    },
+                  },
+                  tooltip: {
+                    y: {
+                      formatter: (val: number) =>
+                        val.toLocaleString('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND',
+                          maximumFractionDigits: 0,
+                        }),
+                    },
+                  },
+                }}
+                series={[{ name: 'Doanh thu', data: dailyStats.map((d) => d.revenue) }]}
+                type="line"
+                height={300}
+                width="100%"
+              />
             </div>
           </div>
-        ) : null
+
+          {/* Top sản phẩm bán chạy */}
+          <div className="rounded-xl bg-white p-4 shadow-md">
+            <h3 className="mb-4 text-center text-lg font-semibold">Top 5 sản phẩm bán chạy nhất</h3>
+            <Chart
+              options={{
+                chart: { id: 'top-products-bar', toolbar: { show: false } },
+                xaxis: {
+                  categories: topProducts.map((p) => p.productName),
+                  title: { text: 'Sản phẩm' },
+                },
+                yaxis: {
+                  title: { text: 'Số lượng bán ra' },
+                  min: 0,
+                  labels: { formatter: (val: number) => Math.round(val).toString() },
+                },
+                plotOptions: { bar: { horizontal: false } },
+                dataLabels: { enabled: true },
+              }}
+              series={[{ name: 'Số lượng', data: topProducts.map((p) => p.totalQuantity) }]}
+              type="bar"
+              height={350}
+              width="100%"
+            />
+          </div>
+
+          {/* Store doanh thu thấp */}
+          <div className="rounded-xl bg-white p-4 shadow-md">
+            <h3 className="mb-4 text-center text-lg font-semibold">
+              Top 5 cửa hàng có doanh thu thấp nhất
+            </h3>
+            <Chart
+              options={{
+                chart: { id: 'low-revenue-stores-bar', toolbar: { show: false } },
+                xaxis: {
+                  categories: lowRevenueStores.map((s) => s.storeName),
+                  title: { text: 'Cửa hàng' },
+                },
+                yaxis: {
+                  title: { text: 'Doanh thu (VND)' },
+                  min: 0,
+                  labels: {
+                    formatter: (val: number) =>
+                      val.toLocaleString('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND',
+                        maximumFractionDigits: 0,
+                      }),
+                  },
+                },
+                tooltip: {
+                  y: {
+                    formatter: (val: number) =>
+                      val.toLocaleString('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND',
+                        maximumFractionDigits: 0,
+                      }),
+                  },
+                },
+                plotOptions: { bar: { horizontal: false } },
+                dataLabels: {
+                  enabled: true,
+                  formatter: (val: number) =>
+                    val.toLocaleString('vi-VN', {
+                      style: 'currency',
+                      currency: 'VND',
+                      maximumFractionDigits: 0,
+                    }),
+                },
+              }}
+              series={[{ name: 'Doanh thu', data: lowRevenueStores.map((s) => s.totalRevenue) }]}
+              type="bar"
+              height={350}
+              width="100%"
+            />
+          </div>
+        </div>
       }
     />
   );

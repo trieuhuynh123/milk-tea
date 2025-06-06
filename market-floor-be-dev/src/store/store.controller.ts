@@ -22,7 +22,16 @@ export class StoreController {
     const store = await this.storeService.createStore(body);
     return store;
   }
-
+  @Get('statistics')
+  async getStoreStatistics(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    return this.storeService.getBottom5StoresByRevenueBetweenDates(
+      startDate,
+      endDate,
+    );
+  }
   @Get('/')
   async getStores(@Query() query: GetStoreDto) {
     const stores = await this.storeService.getStores(query);

@@ -18,6 +18,7 @@ import { StoreRepo } from 'src/store/store.repo';
 import { ProductRepo } from 'src/products/products.repo';
 import { MailerService } from '@nestjs-modules/mailer';
 import { StoreProductRepo } from 'src/products/store-product.repo';
+import { formatDateToDDMMYYYY } from 'src/common/util';
 @Injectable()
 export class OrderService {
   constructor(
@@ -193,5 +194,46 @@ export class OrderService {
       console.log('Error updating order status:', error);
       throw new InternalServerErrorException('Failed to update order status');
     }
+  }
+  async getOrderStatistics(startDate: string, endDate: string) {
+    const orders: Order[] = await this.orderRepo.getOrdersBetweenDates(
+      startDate,
+      endDate,
+    );
+
+    const statsByDate: Record<
+      string,
+      { date: string; count: number; revenue: number }
+    > = {};
+    let totalOrders = 0;
+    let totalRevenue = 0;
+
+    for (const order of orders) {
+      const date = formatDateToDDMMYYYY(order.createdAt);
+      if (!statsByDate[date]) {
+        statsByDate[date] = { date, count: 0, revenue: 0 };
+      }
+      statsByDate[date].count += 1;
+      statsByDate[date].revenue += Number(order.totalAmount);
+
+      totalOrders += 1;
+      totalRevenue += Number(order.totalAmount);
+    }
+
+    const dailyStats = Object.values(statsByDate).sort((a, b) =>
+      a.date.localeCompare(b.date),
+    );
+
+    return {
+      dailyStats,
+      total: {
+        totalOrders,
+        totalRevenue,
+      },
+    };
+  }
+
+  async getTop5ProductsBetweenDates(startDate: string, endDate: string) {
+    return this.orderRepo.getTop5ProductsBetweenDates(startDate, endDate);
   }
 }

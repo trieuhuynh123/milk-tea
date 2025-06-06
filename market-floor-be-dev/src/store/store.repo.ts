@@ -75,4 +75,29 @@ export class StoreRepo {
 
     return { results, total };
   }
+  async getBottom5StoresByRevenueBetweenDates(
+    startDate: string,
+    endDate: string,
+  ) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setDate(end.getDate() + 1); // để lấy hết ngày endDate
+
+    return this.repo
+      .createQueryBuilder('store')
+      .leftJoin(
+        'store.orders',
+        'order',
+        `order.createdAt BETWEEN :start AND :end AND order.status = :status`,
+        { start, end, status: 'delivered' },
+      )
+      .select('store.id', 'storeId')
+      .addSelect('store.name', 'storeName')
+      .addSelect('COALESCE(SUM(order.totalAmount), 0)', 'totalRevenue')
+      .groupBy('store.id')
+      .addGroupBy('store.name')
+      .orderBy('COALESCE(SUM(order.totalAmount), 0)', 'ASC')
+      .limit(5)
+      .getRawMany();
+  }
 }
