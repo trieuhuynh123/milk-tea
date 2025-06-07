@@ -31,6 +31,10 @@ const LoginPage: React.FC<ILoginPageProps> = (props) => {
       if (success) {
         dispatch(setAccessToken(data?.accessToken));
         dispatch(setUser(data));
+        
+        localStorage.setItem("accessToken", data?.accessToken);
+        localStorage.setItem("user", JSON.stringify(data));
+        
         router.push("/");
         setLoading(false);
         toast.sendToast("Success", "Login successfully");
