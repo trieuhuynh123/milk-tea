@@ -105,7 +105,36 @@ export class AuthService {
       }),
     };
   }
+  async signinGoogle(email: string) {
+    let [user] = await this.userUservice.findByEmail(email);
 
+    if (!user) {
+      user = await this.userUservice.create({
+        email,
+        username: email.split('@')[0],
+        firstName: '',
+        lastName: '',
+        password: '',
+        phoneNumber: '',
+        isVerified: true,
+      });
+    }
+
+    const jwtPayload = {
+      id: user.id,
+      username: user.username,
+      phoneNumber: user.phoneNumber,
+      role: user.role,
+    };
+
+    return {
+      ...user,
+      accessToken: this.jwtService.sign(jwtPayload, { expiresIn: '1d' }),
+      refreshToken: this.jwtService.sign(jwtPayload, {
+        expiresIn: '7d',
+      }),
+    };
+  }
   async verifyOtp(payload: IVerifyOtpPayload) {
     const { otpCode, phoneNumber } = payload;
 

@@ -40,6 +40,12 @@ export class AuthController {
     return user;
   }
 
+  @Post('/signin-google')
+  async signinGoogle(@Body() body: { email: string }) {
+    const user = await this.authService.signinGoogle(body.email);
+    return user;
+  }
+
   @Put('/profile')
   @UseGuards(AuthGuard)
   async updateProfile(

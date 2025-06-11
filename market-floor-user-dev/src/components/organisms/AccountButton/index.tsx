@@ -99,9 +99,11 @@ const AccountButton: React.FC<IAccountButtonProps> = (props) => {
 
           <Divider sx={{ height: 4, width: "100%", margin: "4px 0" }} />
 
-          <a className="no-underline text-secondary-900 text-sm font-semibold cursor-pointer hover:underline">
-            Thông tin cá nhân
-          </a>
+          <Link href="/profile" onClick={() => setOpenPopup(false)}>
+            <p className="no-underline text-secondary-900 text-sm font-semibold cursor-pointer hover:underline">
+              Thông tin cá nhân
+            </p>
+          </Link>
 
           <Link href="/orders" onClick={() => setOpenPopup(false)}>
             <p className="no-underline text-secondary-900 text-sm font-semibold cursor-pointer hover:underline">

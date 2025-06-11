@@ -1,164 +1,80 @@
+// app/login/page.tsx
 "use client";
 
-import Button from "@/components/atom/Button";
-import Input from "@/components/atom/Input";
-import { Typography, Box, Divider, CircularProgress } from "@mui/material";
-import Image from "next/image";
-import { set, useForm } from "react-hook-form";
-import axios from "axios";
-import React from "react";
-import { useToast } from "@/hooks/useToast";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useDispatch } from "react-redux";
-import { setAccessToken, setUser } from "@/redux/slices/auth";
 import { apiURL } from "@/constanst";
+import { setAccessToken, setUser } from "@/redux/slices/auth";
+import axios from "axios";
+import { signIn, signOut, useSession } from "next-auth/react"; // Import useSession và signOut
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
-interface ILoginPageProps {}
-
-const LoginPage: React.FC<ILoginPageProps> = (props) => {
-  const { control, handleSubmit } = useForm();
-  const [loading, setLoading] = React.useState(false);
-  const toast = useToast();
-  const router = useRouter();
+export default function LoginPage() {
+  const { data: session, status } = useSession(); // Sử dụng useSession để truy cập session
   const dispatch = useDispatch();
+  const router = useRouter();
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (status === "authenticated" && session?.user?.email) {
+        try {
+          const res = await axios.post(`${apiURL}/auth/signin-google`, {
+            email: session.user.email,
+          });
 
-  const handlePressLogin = async (values: any) => {
-    try {
-      setLoading(true);
-      const response = await axios.post(`${apiURL}/auth/signin`, values);
-      const { success, data, error } = response.data;
-      if (success) {
-        dispatch(setAccessToken(data?.accessToken));
-        dispatch(setUser(data));
-        router.push("/");
-        setLoading(false);
-        toast.sendToast("Success", "Login successfully");
-      } else {
-        setLoading(false);
-        toast.sendToast("Error", "Login failed", data?.message);
+          const { accessToken, user } = res.data.data;
+
+          dispatch(setAccessToken(accessToken));
+          dispatch(setUser(user));
+          router.replace("/");
+          console.log("✅ Lưu accessToken và user vào Redux thành công");
+        } catch (err) {
+          console.error("❌ Lỗi khi gọi API lấy token/user:", err);
+        }
       }
-    } catch (error: any) {
-      setLoading(false);
-      if (error?.response?.status == 410) {
-        router.push(
-          `/verify-account?phoneNumber=${(
-            values.phoneNumber as string
-          ).substring(1)}`,
-        );
-      }
-      toast.sendToast(
-        "Error",
-        error?.response?.data?.message || "Login error",
-        "error",
-      );
-    }
+    };
+
+    fetchUserData();
+  }, [session, status, dispatch]);
+
+  const handleGoogleSignIn = () => {
+    signIn("google");
   };
 
   return (
-    <div className="flex h-auto w-full items-center justify-center bg-white">
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          rowGap: "24px",
-          width: "500px",
-          alignItems: "center",
-          padding: "36px 36px",
-          backgroundColor: "white",
-          borderRadius: "8px",
-        }}
-      >
-        <Box>
-          <Typography
-            className="text-primary-500"
-            sx={{ fontWeight: "600" }}
-            variant="h4"
-          >
-            Sign in
-          </Typography>
-          <Typography
-            sx={{ marginTop: "16px", fontSize: "14px", color: "GrayText" }}
-          >
-            Welcome to Market Floor, a market places connects retailer and
-            customers. Here, you can find a wide variety of products from
-            trusted sellers. Enjoy a seamless shopping experience with us.
-          </Typography>
-        </Box>
+    <div
+      style={{
+        padding: "20px",
+        fontFamily: "Arial, sans-serif",
+        textAlign: "center",
+      }}
+    >
+      {status === "loading" && <p>Đang kiểm tra trạng thái đăng nhập...</p>}
 
-        <Button variant="secondary">
-          <span>Sign in with Google </span>
-          <Image
-            alt="google-logo"
-            src={require("../../../assets/icons/google.png")}
-            width={20}
-            height={20}
-            style={{ marginLeft: "8px" }}
-          />
-        </Button>
-
-        <Divider sx={{ height: 4, width: "100%", margin: "4px 0" }} />
-
-        <form
-          onSubmit={handleSubmit(handlePressLogin)}
-          className="flex w-full flex-col gap-y-6"
+      <div>
+        <h1>Đăng nhập vào ứng dụng</h1>
+        <p>Vui lòng đăng nhập bằng tài khoản Google của bạn.</p>
+        <button
+          onClick={handleGoogleSignIn}
+          style={{
+            padding: "10px 20px",
+            backgroundColor: "#4285F4",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "10px",
+            marginTop: "20px",
+          }}
         >
-          <Input
-            name="phoneNumber"
-            control={control}
-            label="Phone number"
-            placeholder="Enter your phone number"
-            rules={{ required: "Phone number is required" }}
+          <img
+            src="https://img.icons8.com/color/24/000000/google-logo.png"
+            alt="Google logo"
           />
-          <Input
-            control={control}
-            name="password"
-            label="Password"
-            placeholder="Enter your password"
-            mode="password"
-            rules={{ required: "Password is required" }}
-          />
-          <Button
-            type="submit"
-            variant="primary"
-            className="mt-2"
-            isLoading={loading}
-          >
-            Continue with phone number
-          </Button>
-
-          <CircularProgress size={24} />
-        </form>
-
-        <Box>
-          <Typography sx={{ fontSize: "14px", color: "GrayText" }}>
-            By sign in, you agree to Market Floors Terms of Service and Privacy
-            Policy, as well as the Cookie Policy
-          </Typography>
-        </Box>
-        <Divider sx={{ height: 4, width: "100%" }} />
-
-        <Box>
-          <Typography
-            sx={{
-              fontSize: "14px",
-              color: "GrayText",
-              textAlign: "center",
-              columnGap: "2px",
-            }}
-          >
-            Dont have an account?
-            <Link
-              style={{ marginLeft: "4px", textDecoration: "underline" }}
-              href="/create-account"
-            >
-              Create one
-            </Link>
-          </Typography>
-        </Box>
-      </Box>
+          Đăng nhập với Google
+        </button>
+      </div>
     </div>
   );
-};
-
-export default LoginPage;
+}

@@ -4,12 +4,75 @@ import axios from "axios";
 import { get } from "http";
 import { useState } from "react";
 
+// Định nghĩa các mức phí ship theo khu vực
+const SHIPPING_FEE_BY_REGION = {
+  // Khu vực miền Bắc
+  "Thành phố Hà Nội": 80000,
+  "Hải Phòng": 90000,
+  "Quảng Ninh": 100000,
+  "Bắc Ninh": 90000,
+  "Hải Dương": 90000,
+  "Hưng Yên": 90000,
+  "Vĩnh Phúc": 100000,
+  "Hà Nam": 100000,
+  "Nam Định": 100000,
+  "Thái Bình": 100000,
+  "Ninh Bình": 110000,
+  
+  // Khu vực miền Trung
+  "Thanh Hóa": 110000,
+  "Nghệ An": 120000,
+  "Hà Tĩnh": 120000,
+  "Quảng Bình": 130000,
+  "Quảng Trị": 130000,
+  "Thừa Thiên Huế": 130000,
+  "Đà Nẵng": 120000,
+  "Quảng Nam": 130000,
+  "Quảng Ngãi": 130000,
+  "Bình Định": 140000,
+  "Phú Yên": 140000,
+  "Khánh Hòa": 140000,
+  "Ninh Thuận": 140000,
+  "Bình Thuận": 130000,
+  
+  // Khu vực miền Nam
+  "Thành phố Hồ Chí Minh": 70000,
+  "Bà Rịa - Vũng Tàu": 90000,
+  "Bình Dương": 80000,
+  "Đồng Nai": 80000,
+  "Tây Ninh": 100000,
+  "Long An": 90000,
+  "Tiền Giang": 100000,
+  "Bến Tre": 110000,
+  "Vĩnh Long": 110000,
+  "Trà Vinh": 110000,
+  "Đồng Tháp": 110000,
+  "An Giang": 120000,
+  "Kiên Giang": 120000,
+  "Cần Thơ": 100000,
+  "Hậu Giang": 110000,
+  "Sóc Trăng": 120000,
+  "Bạc Liêu": 130000,
+  "Cà Mau": 130000,
+  
+  // Khu vực Tây Nguyên
+  "Đắk Lắk": 140000,
+  "Đắk Nông": 140000,
+  "Gia Lai": 140000,
+  "Kon Tum": 140000,
+  "Lâm Đồng": 130000,
+  
+  // Mức phí mặc định
+  "default": 120000
+};
+
 const useAddress = () => {
   const [listProvinces, setListProvinces] = useState([]);
   const [listDistrict, setListDistrict] = useState([]);
   const [listWard, setListWard] = useState([]);
   const [initialLoading, setInitialLoading] = useState(false);
   const [shippingFee, setShippingFee] = useState(0);
+  const [selectedProvince, setSelectedProvince] = useState(null);
 
   const getListDistricts = async (province_id: number) => {
     const apiUrl =
@@ -86,11 +149,23 @@ const useAddress = () => {
     }
   };
 
+  // Tính phí ship dựa trên khu vực đã chọn
   const calculateShippingFee = async (
     province: any,
     district: any,
     ward: any
   ) => {
+    // Lưu thông tin tỉnh/thành phố đã chọn
+    setSelectedProvince(province);
+    
+    // Lấy phí ship tùy chỉnh theo tỉnh/thành phố
+    const customFee = SHIPPING_FEE_BY_REGION[province?.ProvinceName] || SHIPPING_FEE_BY_REGION.default;
+    
+    // Áp dụng phí ship tùy chỉnh
+    setShippingFee(customFee);
+    
+    // Nếu muốn vẫn gọi API GHN để so sánh hoặc ghi log, có thể giữ lại đoạn code bên dưới
+    // và comment lại dòng setShippingFee bên trên
     const data = {
       service_type_id: 5,
       from_district_id: 3695,
@@ -130,8 +205,9 @@ const useAddress = () => {
           { headers }
         )
         .then((response) => {
-          console.log(response.data);
-          setShippingFee(response?.data?.data?.total);
+          console.log("GHN shipping fee:", response.data);
+          // Nếu muốn sử dụng phí của GHN thay vì phí tùy chỉnh, bỏ comment dòng dưới
+          // setShippingFee(response?.data?.data?.total);
         })
         .catch((error) => {
           console.error(error);
@@ -150,6 +226,7 @@ const useAddress = () => {
     getListProvince,
     calculateShippingFee,
     shippingFee,
+    selectedProvince,
   };
 };
 

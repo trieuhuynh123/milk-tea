@@ -1,11 +1,12 @@
 import useAddress from "@/hooks/useAddress";
 import React, { useEffect } from "react";
 import CustomDialog from "../CustomDialog";
-import { Menu, MenuItem, Select } from "@mui/material";
+import { Menu, MenuItem, Select, Tooltip } from "@mui/material";
 import { set, useForm } from "react-hook-form";
 import SelectComponent from "@/components/atom/Select";
 import Button from "@/components/atom/Button";
 import Input from "@/components/atom/Input";
+import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 interface IFormValue {
   province: any;
@@ -32,6 +33,7 @@ const AddressDialog: React.FC<IAddressDialogProps> = (props) => {
     calculateShippingFee,
     shippingFee,
     getListWars,
+    selectedProvince,
   } = useAddress();
 
   const [provinceSelected, setProvinceSelected] = React.useState<any>(null);
@@ -60,6 +62,14 @@ const AddressDialog: React.FC<IAddressDialogProps> = (props) => {
       calculateShippingFee(provinceSelected, districtSelected, wardSelected);
     }
   }, [wardSelected]);
+
+  // Xác định màu sắc cho phí ship dựa trên giá trị
+  const getShippingFeeColor = () => {
+    if (shippingFee <= 80000) return "text-green-600";
+    if (shippingFee <= 100000) return "text-blue-600";
+    if (shippingFee <= 120000) return "text-primary-500";
+    return "text-red-500";
+  };
 
   return (
     <>
@@ -112,13 +122,24 @@ const AddressDialog: React.FC<IAddressDialogProps> = (props) => {
             </div>
 
             <div className="mt-4 flex w-full items-center justify-between">
-              <p className="text-sm font-bold text-secondary-900">
-                Giá vận chuyển
-              </p>
-              <p className="text-sm font-bold text-primary-500">
+              <div className="flex items-center">
+                <p className="text-sm font-bold text-secondary-900 mr-1">
+                  Phí vận chuyển
+                </p>
+                <Tooltip title="Phí vận chuyển được tính dựa trên khu vực địa lý. Các khu vực gần trung tâm như TP.HCM, Hà Nội có mức phí thấp hơn.">
+                  <InformationCircleIcon className="h-4 w-4 text-gray-500 cursor-pointer" />
+                </Tooltip>
+              </div>
+              <p className={`text-sm font-bold ${getShippingFeeColor()}`}>
                 {shippingFee?.toString().prettyMoney()}
               </p>
             </div>
+
+            {provinceSelected && (
+              <div className="mt-2 text-xs text-gray-500 italic">
+                Khu vực {provinceSelected?.ProvinceName} có mức phí vận chuyển {shippingFee?.toString().prettyMoney()}
+              </div>
+            )}
 
             <div className="mt-16 flex gap-x-2">
               <Button onClick={onClose} variant="secondary">
