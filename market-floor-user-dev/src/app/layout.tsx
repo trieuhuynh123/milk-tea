@@ -27,28 +27,28 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <SessionProvider>
-        <Provider store={store}>
-          <PersistGate loading={null} persistor={persistor}>
-            <ToastProvider>
-              <ThemeProvider theme={theme}>
-                <AppRouterCacheProvider>
-                  <CssBaseline />
+          <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+              <ToastProvider>
+                <ThemeProvider theme={theme}>
+                  <AppRouterCacheProvider>
+                    <CssBaseline />
 
-                  <Header />
-                  <ProgressBar
-                    height="4px"
-                    color="black"
-                    shallowRouting
-                    options={{ showSpinner: false }}
-                  />
-                  <div className="min-h-[70vh] bg-white">{children}</div>
-                  <Footer />
-                </AppRouterCacheProvider>
-              </ThemeProvider>
-            </ToastProvider>
-          </PersistGate>
+                    <Header />
+                    <ProgressBar
+                      height="4px"
+                      color="black"
+                      shallowRouting
+                      options={{ showSpinner: false }}
+                    />
+                    <div className="min-h-[70vh] bg-white">{children}</div>
+                    <Footer />
+                  </AppRouterCacheProvider>
+                </ThemeProvider>
+              </ToastProvider>
+            </PersistGate>
           </Provider>
-          </SessionProvider>
+        </SessionProvider>
       </body>
     </html>
   );
