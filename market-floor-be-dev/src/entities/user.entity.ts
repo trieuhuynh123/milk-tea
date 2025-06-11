@@ -34,7 +34,7 @@ export class User {
   @Column()
   username: string;
 
-  @Column({ unique: true })
+  @Column()
   phoneNumber: string;
 
   @Column()
