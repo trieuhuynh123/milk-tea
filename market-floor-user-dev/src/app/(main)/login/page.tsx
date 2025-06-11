@@ -4,15 +4,20 @@
 import { apiURL } from "@/constanst";
 import { setAccessToken, setUser } from "@/redux/slices/auth";
 import axios from "axios";
-import { signIn, signOut, useSession } from "next-auth/react"; // Import useSession và signOut
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import Image from "next/image";
 
 export default function LoginPage() {
-  const { data: session, status } = useSession(); // Sử dụng useSession để truy cập session
+  const { data: session, status } = useSession();
   const dispatch = useDispatch();
   const router = useRouter();
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     const fetchUserData = async () => {
       if (status === "authenticated" && session?.user?.email) {
@@ -34,46 +39,99 @@ export default function LoginPage() {
     };
 
     fetchUserData();
-  }, [session, status, dispatch]);
+  }, [session, status, dispatch, router]);
 
   const handleGoogleSignIn = () => {
     signIn("google");
   };
 
-  return (
-    <div
-      style={{
-        padding: "20px",
-        fontFamily: "Arial, sans-serif",
-        textAlign: "center",
-      }}
-    >
-      {status === "loading" && <p>Đang kiểm tra trạng thái đăng nhập...</p>}
+  const handlePhoneLogin = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      // Implement phone login logic here
+      const res = await axios.post(`${apiURL}/auth/signin`, {
+        phoneNumber,
+        password,
+      });
+      
+      const { accessToken, user } = res.data.data;
+      
+      dispatch(setAccessToken(accessToken));
+      dispatch(setUser(user));
+      router.replace("/");
+    } catch (err) {
+      console.error("❌ Lỗi đăng nhập:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      <div>
-        <h1>Đăng nhập vào ứng dụng</h1>
-        <p>Vui lòng đăng nhập bằng tài khoản Google của bạn.</p>
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold mb-2">Sign in</h1>
+          <p className="text-gray-600 text-sm">
+            Welcome to Market Floor, a market places connects retailer and customers. Here, you can find a wide variety of products from trusted sellers. Enjoy a seamless shopping experience with us.
+          </p>
+        </div>
+
         <button
           onClick={handleGoogleSignIn}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#4285F4",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "10px",
-            marginTop: "20px",
-          }}
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-gray-300 rounded-md mb-4 bg-white text-gray-700 hover:bg-gray-50 transition"
         >
-          <img
-            src="https://img.icons8.com/color/24/000000/google-logo.png"
-            alt="Google logo"
-          />
-          Đăng nhập với Google
+          <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+            <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
+            <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
+            <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
+            <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
+          </svg>
+          Sign in with Google
         </button>
+
+        <form onSubmit={handlePhoneLogin}>
+          <div className="mb-4">
+            <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+              Phone number
+            </label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
+              required
+            />
+          </div>
+
+          <div className="mb-6">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition"
+          >
+            {isLoading ? "Loading..." : "Continue with phone number"}
+          </button>
+        </form>
+
+        <p className="text-xs text-gray-500 mt-6 text-center">
+          By sign in, you agree to Market Floor's Terms of Service and Privacy Policy, as well as the Cookie Policy
+        </p>
       </div>
     </div>
   );
