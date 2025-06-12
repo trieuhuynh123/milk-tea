@@ -104,9 +104,14 @@ const HeaderV2: React.FC<IHeaderV2Props> = () => {
       </div>
 
       <div className="border-seconday-500 flex h-[50px] w-full items-center justify-center gap-x-4 border-b bg-primary-600 shadow-lg laptop:pb-0">
+        <Link href="/">
+          <p className="text-md font-semibold text-secondary-500 hover:text-secondary-400">
+            Trang chủ
+          </p>
+        </Link>
         {listCategory?.map((category: any, index: number) => (
-          <Link key={index} href="/">
-            <p className="text-md font-semibold text-secondary-500">
+          <Link key={index} href={`/category/${category?.id}`}>
+            <p className="text-md font-semibold text-secondary-500 hover:text-secondary-400">
               {category?.name}
             </p>
           </Link>

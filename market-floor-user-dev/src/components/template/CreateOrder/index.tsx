@@ -165,7 +165,7 @@ const CreateOrder: React.FC<ICreateOrderProps> = (props) => {
                 border-none
                 className="text-left font-bold text-primary-500"
               >
-                Người khác nhận hàng giúp bạn?
+                Nhập thông tin người nhận
               </button>
             </div>
           </div>

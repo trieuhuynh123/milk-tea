@@ -40,7 +40,13 @@ const useProducts = () => {
       });
 
       if (response?.data?.success) {
-        setStoreProducts(storeProducts?.concat(response?.data?.data?.results));
+        if (payload?.page && payload.page > 1) {
+          // Append products for pagination
+          setStoreProducts(storeProducts?.concat(response?.data?.data?.results));
+        } else {
+          // Replace products for new category
+          setStoreProducts(response?.data?.data?.results);
+        }
         setTotal(response?.data?.data?.total);
       } else {
         setStoreProducts(storeProducts || []);
@@ -82,6 +88,7 @@ const useProducts = () => {
 
   return {
     storeProducts,
+    setStoreProducts,
     getAllProducts,
     loading,
     total,

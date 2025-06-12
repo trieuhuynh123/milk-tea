@@ -4,13 +4,14 @@ import axios from "axios";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useToast } from "./useToast";
-import { ICreateOrder } from "@/@types";
+import { ICreateOrder, IOrderDetail } from "@/@types";
 
 const useOrder = () => {
   const [actionLoading, setActionLoading] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const { accessToken } = useSelector((state: any) => state.auth);
   const { currentOrder, orders } = useSelector((state: any) => state.order);
+  const { user } = useSelector((state: any) => state.auth || { user: null });
   const dispatch = useDispatch();
   const toast = useToast();
 
@@ -90,8 +91,42 @@ const useOrder = () => {
         },
       });
       if (response?.data?.success) {
+        const orderData = response?.data?.data;
+        
+        // Kiểm tra các sản phẩm đã được đánh giá chưa
+        if (orderData?.status === "delivered" && orderData?.orderDetails?.length > 0 && user?.id) {
+          try {
+            const ratedProductsResponse = await axios.get(
+              `${apiURL}/ratings/user/${user.id}/order/${orderId}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                },
+              }
+            );
+
+            if (ratedProductsResponse?.data?.success) {
+              const ratedProducts = ratedProductsResponse?.data?.data || [];
+              
+              // Đánh dấu các sản phẩm đã được đánh giá
+              const orderDetailsWithRatingStatus = orderData.orderDetails.map(
+                (detail: IOrderDetail) => {
+                  const isRated = ratedProducts.some(
+                    (rating: any) => rating.orderDetailId === detail.id
+                  );
+                  return { ...detail, isRated };
+                }
+              );
+              
+              orderData.orderDetails = orderDetailsWithRatingStatus;
+            }
+          } catch (error) {
+            console.error("Error checking rated products", error);
+          }
+        }
+        
         setLoading(false);
-        dispatch(setCurrentOrder(response?.data?.data));
+        dispatch(setCurrentOrder(orderData));
       }
     } catch (error) {
       setLoading(false);
