@@ -14,7 +14,6 @@ const useCart = (currentProduct?: IProduct) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [currentQuantity, setCurrentQuantity] = useState<number>(0);
   const toast = useToast();
-  console.log(currentCart);
   const dispatch = useDispatch();
 
   const getUserCart = async () => {

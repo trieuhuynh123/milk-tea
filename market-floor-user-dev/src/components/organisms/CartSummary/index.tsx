@@ -3,12 +3,13 @@
 import useAuth from "@/hooks/useAuth";
 import useCart from "@/hooks/useCart";
 import { Divider } from "@mui/material";
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { useSelector } from "react-redux";
 
 interface ICartSummaryProps {
   shippingFee?: number;
   isApplyUserSavePoints?: boolean;
+  setFinalPrice?: Dispatch<SetStateAction<number>>;
 }
 
 const CartSummary: React.FC<ICartSummaryProps> = (props) => {
@@ -57,7 +58,7 @@ const CartSummary: React.FC<ICartSummaryProps> = (props) => {
     if (props?.shippingFee) {
       finalPrice = finalPrice + props?.shippingFee;
     }
-
+    props.setFinalPrice?.(finalPrice);
     return `${finalPrice}`?.prettyMoney();
   };
 

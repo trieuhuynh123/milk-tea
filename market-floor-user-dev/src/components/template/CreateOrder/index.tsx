@@ -22,29 +22,35 @@ import { InformationCircleIcon } from "@heroicons/react/24/outline";
 // Component hiển thị thông tin về phí ship theo khu vực
 const ShippingFeeInfo = () => {
   return (
-    <div className="border-secodary-600 w-full rounded-2xl border px-8 py-4 mt-4">
-      <div className="flex items-center mb-2">
-        <h3 className="text-xl font-semibold text-secondary-900 mr-2">
+    <div className="border-secodary-600 mt-4 w-full rounded-2xl border px-8 py-4">
+      <div className="mb-2 flex items-center">
+        <h3 className="mr-2 text-xl font-semibold text-secondary-900">
           Thông tin phí vận chuyển
         </h3>
         <Tooltip title="Phí vận chuyển được tính dựa trên khu vực địa lý">
-          <InformationCircleIcon className="h-5 w-5 text-gray-500 cursor-pointer" />
+          <InformationCircleIcon className="h-5 w-5 cursor-pointer text-gray-500" />
         </Tooltip>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+
+      <div className="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <h4 className="font-semibold text-secondary-800 mb-1">Khu vực miền Bắc:</h4>
+          <h4 className="mb-1 font-semibold text-secondary-800">
+            Khu vực miền Bắc:
+          </h4>
           <ul className="text-sm text-gray-600">
             <li>Hà Nội: 80.000đ</li>
             <li>Hải Phòng, Bắc Ninh, Hải Dương, Hưng Yên: 90.000đ</li>
-            <li>Quảng Ninh, Vĩnh Phúc, Hà Nam, Nam Định, Thái Bình: 100.000đ</li>
+            <li>
+              Quảng Ninh, Vĩnh Phúc, Hà Nam, Nam Định, Thái Bình: 100.000đ
+            </li>
             <li>Ninh Bình: 110.000đ</li>
           </ul>
         </div>
-        
+
         <div>
-          <h4 className="font-semibold text-secondary-800 mb-1">Khu vực miền Nam:</h4>
+          <h4 className="mb-1 font-semibold text-secondary-800">
+            Khu vực miền Nam:
+          </h4>
           <ul className="text-sm text-gray-600">
             <li>TP. Hồ Chí Minh: 70.000đ</li>
             <li>Bình Dương, Đồng Nai: 80.000đ</li>
@@ -52,19 +58,26 @@ const ShippingFeeInfo = () => {
             <li>Tây Ninh, Tiền Giang, Cần Thơ: 100.000đ</li>
           </ul>
         </div>
-        
+
         <div>
-          <h4 className="font-semibold text-secondary-800 mb-1">Khu vực miền Trung:</h4>
+          <h4 className="mb-1 font-semibold text-secondary-800">
+            Khu vực miền Trung:
+          </h4>
           <ul className="text-sm text-gray-600">
             <li>Thanh Hóa: 110.000đ</li>
             <li>Nghệ An, Hà Tĩnh, Đà Nẵng: 120.000đ</li>
-            <li>Quảng Bình, Quảng Trị, Thừa Thiên Huế, Quảng Nam, Quảng Ngãi, Bình Thuận: 130.000đ</li>
+            <li>
+              Quảng Bình, Quảng Trị, Thừa Thiên Huế, Quảng Nam, Quảng Ngãi, Bình
+              Thuận: 130.000đ
+            </li>
             <li>Bình Định, Phú Yên, Khánh Hòa, Ninh Thuận: 140.000đ</li>
           </ul>
         </div>
-        
+
         <div>
-          <h4 className="font-semibold text-secondary-800 mb-1">Khu vực khác:</h4>
+          <h4 className="mb-1 font-semibold text-secondary-800">
+            Khu vực khác:
+          </h4>
           <ul className="text-sm text-gray-600">
             <li>Tây Nguyên (Đắk Lắk, Đắk Nông, Gia Lai, Kon Tum): 140.000đ</li>
             <li>Lâm Đồng: 130.000đ</li>
@@ -72,9 +85,10 @@ const ShippingFeeInfo = () => {
           </ul>
         </div>
       </div>
-      
-      <p className="text-xs text-gray-500 mt-4 italic">
-        * Phí vận chuyển có thể thay đổi tùy theo chính sách của đơn vị vận chuyển và khoảng cách.
+
+      <p className="mt-4 text-xs italic text-gray-500">
+        * Phí vận chuyển có thể thay đổi tùy theo chính sách của đơn vị vận
+        chuyển và khoảng cách.
       </p>
     </div>
   );
@@ -93,7 +107,7 @@ const CreateOrder: React.FC<ICreateOrderProps> = (props) => {
   const toast = useToast();
   const { currentStore } = useStore();
   const { getUserCart } = useCart();
-
+  const [finalPrice, setFinalPrice] = useState(0);
   const [orderUserInfo, setOrderUserInfo] =
     useState<ICreateOrderUserInfo | null>(null);
   const [orderAddress, setOrderAddress] = useState<ICreateOrderAddress | null>(
@@ -125,17 +139,16 @@ const CreateOrder: React.FC<ICreateOrderProps> = (props) => {
   };
 
   const handleClickCreateOrder = async (data: ICreateOrder) => {
-    await createOrder(data, async () => {
-      await getUserCart();
-      router.push("/orders");
-      if (isApplyUserSavePoints) {
-        await updateUserSavePoints(
-          Number(user?.savePoints - (user?.savePoints * 70) / 100),
-        );
-      } else {
-        await updateUserSavePoints(Number(user?.savePoints + 1));
-      }
+    const res = await axios.post(`${apiURL}/payment/create-url`, {
+      amount: finalPrice,
     });
+    const url = res.data?.data;
+    if (url) {
+      localStorage.setItem("pendingOrder", JSON.stringify(data));
+      window.location.href = url;
+    } else {
+      alert("Không tạo được link thanh toán");
+    }
   };
 
   return (
@@ -221,6 +234,7 @@ const CreateOrder: React.FC<ICreateOrderProps> = (props) => {
         </div>
         <div className="w-full cursor-pointer flex-col gap-y-4 rounded-lg border border-secondary-600 px-8 py-4 tablet:w-[30%] laptop:flex">
           <CartSummary
+            setFinalPrice={setFinalPrice}
             isApplyUserSavePoints={isApplyUserSavePoints}
             shippingFee={orderAddress?.shippingFee}
           />

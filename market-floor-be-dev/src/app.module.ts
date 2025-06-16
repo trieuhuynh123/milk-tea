@@ -30,6 +30,7 @@ import { Order } from './entities/order.entity';
 import { OrderDetail } from './entities/order-detail.entity';
 import { OrderModule } from './order/order.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -67,9 +68,9 @@ import { MailerModule } from '@nestjs-modules/mailer';
           database: config.get('PROJECT_DB_NAME'),
           username: process.env.PROJECT_DB_USER,
           password: process.env.PROJECT_DB_PASSWORD,
-          ssl: {
-            rejectUnauthorized: false,
-          },
+          // ssl: {
+          //   rejectUnauthorized: false,
+          // },
           entities: [
             User,
             UserDevice,
@@ -99,6 +100,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
     StoreModule,
     CartModule,
     OrderModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [
