@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { Brackets, ILike, Repository, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from 'src/entities/product.entity';
 import { CreateProductDto, UpdateProductDto } from './dtos/product.dto';
@@ -69,14 +69,27 @@ export class ProductRepo {
     return { results, total, totalPage, categories };
   }
 
-  async findWithKeyword(keyword: string) {
-    return this.repo.find({
-      where: [
-        { name: keyword },
-        { fullDescription: keyword },
-        { shortDescription: keyword },
-      ],
-    });
+  async findWithKeywordInStore(keyword: string, store: number) {
+    return this.repo
+      .createQueryBuilder('product')
+      .innerJoin(
+        'store_product',
+        'storeProduct',
+        'storeProduct.product_id = product.id',
+      )
+      .where('storeProduct.store_id = :store', { store })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('product.name ILIKE :kw', { kw: `%${keyword}%` })
+            .orWhere('product.fullDescription ILIKE :kw', {
+              kw: `%${keyword}%`,
+            })
+            .orWhere('product.shortDescription ILIKE :kw', {
+              kw: `%${keyword}%`,
+            });
+        }),
+      )
+      .getMany();
   }
 
   async update(id: number, attrs: UpdateProductDto) {

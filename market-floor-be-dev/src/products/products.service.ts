@@ -112,8 +112,9 @@ export class ProductService {
 
   async searchProduct(params: SearchProductDto) {
     try {
-      const searchResults = await this.productRepo.findWithKeyword(
+      const searchResults = await this.productRepo.findWithKeywordInStore(
         params.keyword,
+        params.store,
       );
 
       if (searchResults) {

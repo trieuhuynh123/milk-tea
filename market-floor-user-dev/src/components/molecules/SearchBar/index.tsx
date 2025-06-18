@@ -1,5 +1,6 @@
 import useDebounce from "@/hooks/useDebounce";
 import useSearch from "@/hooks/useSearch";
+import useStore from "@/hooks/useStore";
 import {
   MagnifyingGlassCircleIcon,
   MagnifyingGlassIcon,
@@ -20,14 +21,13 @@ const SearchBar = forwardRef<HTMLInputElement, ISearchBarProps>(
   (props, ref) => {
     const { onChange, onBlur, onFocus, placeholder, autoFocus = false } = props;
     const [keyword, setKeyword] = React.useState<string>("");
-    const debounceKeyword = useDebounce(keyword, 500);
     const { searchingByKeyword } = useSearch();
-
+    const { currentStore } = useStore();
     useEffect(() => {
-      if (debounceKeyword?.length > 0) {
-        searchingByKeyword(debounceKeyword);
+      if (keyword !== "") {
+        searchingByKeyword(keyword, currentStore.id);
       }
-    }, [debounceKeyword]);
+    }, [keyword]);
 
     return (
       <Box
@@ -75,10 +75,10 @@ const SearchBar = forwardRef<HTMLInputElement, ISearchBarProps>(
           }}
         />
 
-        <MagnifyingGlassIcon className="text-secondary-900 w-6 h-6" />
+        <MagnifyingGlassIcon className="h-6 w-6 text-secondary-900" />
       </Box>
     );
-  }
+  },
 );
-
+SearchBar.displayName = "SearchBar";
 export default SearchBar;

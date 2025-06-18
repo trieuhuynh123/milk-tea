@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 const useSearch = () => {
   const { searchResults, isLoading } = useSelector(
-    (state: any) => state.search
+    (state: any) => state.search,
   );
 
   const dispatch = useDispatch();
@@ -17,11 +17,13 @@ const useSearch = () => {
     dispatch(setSearchResults(data));
   };
 
-  const searchingByKeyword = async (keyword: string) => {
+  const searchingByKeyword = async (keyword: string, currentStore: string) => {
     try {
       dispatch(setLoading(true));
+      console.log(currentStore);
       const searchResponse = await axios.post(`${apiURL}/products/search`, {
         keyword: keyword,
+        store: currentStore,
       });
 
       if (searchResponse) {

@@ -11,8 +11,6 @@ interface BottomSheetProps {
 }
 
 const BottomSheet: React.FC<BottomSheetProps> = ({ open, onClose }) => {
-  const { searchResults } = useSearch();
-
   return (
     <Dialog
       open={open}
@@ -23,11 +21,11 @@ const BottomSheet: React.FC<BottomSheetProps> = ({ open, onClose }) => {
         className="fixed inset-0 bg-black bg-opacity-50"
         aria-hidden="true"
       />
-      <div className="fixed inset-x-0 bottom-0 bg-white rounded-t-lg shadow-lg min-h-[100vh] px-2 py-4">
+      <div className="fixed inset-x-0 bottom-0 min-h-[100vh] rounded-t-lg bg-white px-2 py-4 shadow-lg">
         <div>
-          <div className="mb-4 flex flex-row-reverse w-full">
+          <div className="mb-4 flex w-full flex-row-reverse">
             <IconButton onClick={() => onClose()}>
-              <XMarkIcon className="text-primary-800 w-6 h-6" />
+              <XMarkIcon className="h-6 w-6 text-primary-800" />
             </IconButton>
           </div>
           <SearchBar

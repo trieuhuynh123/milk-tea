@@ -66,6 +66,9 @@ export class SearchProductDto {
   @IsOptional()
   @IsString()
   keyword: string;
+  @IsOptional()
+  @IsNumber()
+  store: number;
 }
 
 export class GetProductDetailDto {
