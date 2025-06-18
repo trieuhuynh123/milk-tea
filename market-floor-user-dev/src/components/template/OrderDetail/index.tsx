@@ -7,7 +7,6 @@ import CartSummary from "@/components/organisms/CartSummary";
 import useOrder from "@/hooks/useOrder";
 import Button from "@/components/atom/Button";
 import Image from "next/image";
-import RatingDialog from "@/components/molecules/RatingDialog";
 import { IOrderDetail } from "@/@types";
 import { StarIcon as StarIconOutline } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
@@ -18,8 +17,8 @@ interface IOrderDetailTemplateProps {
 
 const OrderDetailTemplate: React.FC<IOrderDetailTemplateProps> = (props) => {
   const { currentOrder, getOrderById } = useOrder();
-  const [selectedOrderDetail, setSelectedOrderDetail] = useState<IOrderDetail | null>(null);
-  const [openRatingDialog, setOpenRatingDialog] = useState<boolean>(false);
+  const [selectedOrderDetail, setSelectedOrderDetail] =
+    useState<IOrderDetail | null>(null);
 
   useEffect(() => {
     getOrderById(props.orderId);
@@ -27,7 +26,6 @@ const OrderDetailTemplate: React.FC<IOrderDetailTemplateProps> = (props) => {
 
   const handleOpenRating = (orderDetail: IOrderDetail) => {
     setSelectedOrderDetail(orderDetail);
-    setOpenRatingDialog(true);
   };
 
   const handleRatingSuccess = () => {
@@ -69,7 +67,7 @@ const OrderDetailTemplate: React.FC<IOrderDetailTemplateProps> = (props) => {
         return <span className="text-2xl font-bold text-red-600">Đã hủy</span>;
     }
   };
-  
+
   const canRateProducts = currentOrder?.status === "delivered";
 
   return (
@@ -139,26 +137,28 @@ const OrderDetailTemplate: React.FC<IOrderDetailTemplateProps> = (props) => {
                     className="rounded-lg object-cover"
                   />
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold">{item.product.name}</h3>
+                    <h3 className="text-lg font-semibold">
+                      {item.product.name}
+                    </h3>
                     <p>Số lượng: {item.quantity}</p>
                     <p>Giá: {item.price.toString().prettyMoney()} đ</p>
                   </div>
                 </div>
-                
+
                 {/* Rating button - only show for delivered orders and unrated items */}
                 {canRateProducts && (
                   <div className="mt-3 flex justify-end">
                     {item.isRated ? (
                       <div className="flex items-center text-yellow-500">
-                        <StarIconSolid className="h-5 w-5 mr-1" />
+                        <StarIconSolid className="mr-1 h-5 w-5" />
                         <span>Đã đánh giá</span>
                       </div>
                     ) : (
                       <button
                         onClick={() => handleOpenRating(item)}
-                        className="flex items-center text-primary-500 font-semibold hover:text-primary-600 transition"
+                        className="flex items-center font-semibold text-primary-500 transition hover:text-primary-600"
                       >
-                        <StarIconOutline className="h-5 w-5 mr-1" />
+                        <StarIconOutline className="mr-1 h-5 w-5" />
                         Đánh giá sản phẩm
                       </button>
                     )}
@@ -173,16 +173,6 @@ const OrderDetailTemplate: React.FC<IOrderDetailTemplateProps> = (props) => {
           <CartSummary />
         </div> */}
       </div>
-
-      {openRatingDialog && selectedOrderDetail && (
-        <RatingDialog
-          open={openRatingDialog}
-          onClose={() => setOpenRatingDialog(false)}
-          orderDetail={selectedOrderDetail}
-          orderId={props.orderId}
-          onRatingSuccess={handleRatingSuccess}
-        />
-      )}
     </div>
   );
 };
