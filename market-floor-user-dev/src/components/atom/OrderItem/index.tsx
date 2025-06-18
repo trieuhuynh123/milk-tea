@@ -82,24 +82,6 @@ const OrderItem: React.FC<IOrderItemProps> = ({ orderItem }) => {
           </span>
         </p>
       </div>
-      {status == "pending" && (
-        <div className="flex w-full max-w-[30%] flex-col items-center gap-y-2">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-
-              cancelOrder(orderItem?.id);
-            }}
-            className="rounded-full border border-red-500 bg-white px-4 py-2 text-red-500 hover:opacity-50"
-          >
-            {actionLoading ? <CircularProgress size={20} /> : "Hủy đơn hàng"}
-          </button>
-          {/* <p className="text-gray-800 text-xs italic text-regular text-center">
-            *Bạn chỉ có thể hủy đơn hàng ở trạng thái đang chờ
-          </p> */}
-        </div>
-      )}
     </div>
   );
 };

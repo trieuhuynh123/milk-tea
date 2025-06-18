@@ -212,13 +212,13 @@ const CreateOrder: React.FC<ICreateOrderProps> = (props) => {
             </button>
           </div>
 
-          <div className="border-secodary-600 grid w-full grid-cols-3 rounded-2xl border px-8 py-4">
+          <div className="border-secodary-600 hidden w-full grid-cols-3 rounded-2xl border px-8 py-4">
             <p className="text-xl font-semibold text-secondary-900">
               Thanh toán
             </p>
 
             <div className="flex flex-col gap-y-2">
-              <p className="text-secondary-900">Thanh toán khi nhận hàng</p>
+              <p className="text-secondary-900">Thanh toán khi nhận hàn</p>
             </div>
 
             <button
